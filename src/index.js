@@ -18,13 +18,16 @@ const io = socketio(server);
 
     
 // }
-
 var users = [];
 var rooms = [];
 var games = [];
 
-let myGame = new Game('context');
+// 960, 468.5
+// 1920 937
+const TAM_GAME = {width: 1920, height: 937};
 
+let myGame = new Game(TAM_GAME);
+myGame.Run();
 
 // Seteando carpeta estatica, carpeta donde contiene todos los datos que requiere el usuario cuando hace la peticion
 // a la web buscando recursos.
@@ -42,7 +45,6 @@ io.on('connection', (socket) => {
 
     // Envia mensaje a todos los usuaios
     // io.emit();
-
 
     socket.on("disconnecting", () => {
         // Deleting users
@@ -95,6 +97,8 @@ io.on('connection', (socket) => {
         
         // Crea usuario
         users[socket.id] = {x: randomInt(1000), y: randomInt(600), room: message};
+        // myGame.SpawnPlayer(50, [innerWidth/2,innerHeight/2], 'blue', 10, 'Player1', 200);
+        // myGame.SpawnPlayer(50, [innerWidth-80,innerHeight/2], 'red', 10, 'Player2', 200);
 
         // Crea sala
         // if (!rooms[message])
@@ -119,28 +123,6 @@ io.on('connection', (socket) => {
 
         let return_msg = {status: 'ok', response: {users: users, rooms: rooms}};
         socket.broadcast.emit('server_new_room', return_msg);
-    });
-
-
-    socket.on('client_join_room', (context) => {
-        // socket.join("room1");
-        // var room = io.sockets.adapter.rooms[message];
-        // console.log(room);
-
-        // io.to(context).emit('server', 'New Player Joined');
-
-        // let nameUser = "Player " + String.toString(users.length+1);
-        // let nameRoom = "Room1";
-
-        // let myGame = game.newGame(context);
-        // console.log(context);
-        // myGame.SpawnPlayer(50, [innerWidth/2,innerHeight/2], 'blue', 10, 'Player1', 200);
-        // myGame.SpawnPlayer(50, [innerWidth-80,innerHeight/2], 'red', 10, 'Player2', 200);
-        // myGame.Run();
-        // rooms.splice(rooms.findIndex((el) => el=='Server3'),1)
-
-        // let return_msg = {'status': 'ok', 'response': users};
-        // socket.broadcast.emit('server_new_room', return_msg);
     });
 })
 

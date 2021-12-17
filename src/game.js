@@ -86,11 +86,12 @@ class Player extends Pawn{
         super(size, pos, color, speed);
         this.name = name;
         this.health = health;
+        this.direction = {x: 0, y: 0};
     }
 
     // Move toward espefic target, this a
-    Move(dir, center){
-        dir = GMath.NormalizeVector(dir);
+    Move(center){
+        let dir = GMath.NormalizeVector([this.direction.x, this.direction.y]);
     
         super.UpdateValid(dir, center);
         // console.log((center[0]*2-this.size) > this.pos[0] && this.pos[0] > (0+this.size));
@@ -99,24 +100,37 @@ class Player extends Pawn{
     GetPos(){
         return this.pos;
     }
+
+    UpdateDir(direction){
+        this.direction = direction;
+    }
 }
 
 class GameState{
     constructor(){
-        this.players = new Array();
+        this.players = {};
         this.projectiles = new Array();
         this.spawnProjectiles = false;
     }
 
-    AddPlayer(player){
-        this.players.push(player);
+    AddPlayer(idPlayer, newPlayer){
+        this.players['idPlayer'] = newPlayer;
     }
 
     AddProjectiles(proj){
         this.projectiles.push(proj);
     }
+
+    GetPlayer(){
+        return this.players;
+    }
+
+    GetProjectiles(){
+        return this.players;
+    }
 }
 
+// Client Side
 // class Display{
 //     static Draw(myGameState, context){
 //         Display.ClearScreen(context);
@@ -168,21 +182,33 @@ class GameState{
 // }
 
 class Game{
-    constructor(tam){
+    constructor(tam, fps){
         this.myGameState = new GameState();
         this.center = [tam.width/2, tam.height/2];
+        this.gameFrec = 1000/fps;
+        // const GAME_CHECK_INTERV = 100;
     }
 
     Run(){
-        requestAnimationFrame(() => this.Run());
+        // Display.Draw(this.myGameState, this.context);
+        setInterval(() => {
+            this.PlayerMove(); // Move the player (key pressed)
+            this.ProjectilesMove(); // Move projectiles
+            this.ProjectileHitEnemy(); // check if hit projectile
+            this.DespawnProjectile(); // check if can despawn proj
+        }, this.gameFrec); // Maybe split and change to GAME_CHECK_INTERV if overloaded server
+    }
+
+    PlayerMove(){
+        // for more than 2 player user forEach loop
+        this.myGameState.players[0].Move(this.center);
+        this.myGameState.players[1].Move(this.center);
+    }
+
+    ProjectilesMove(){
         this.myGameState.projectiles.forEach(proj => {
             proj.Update();
         });
-        Display.Draw(this.myGameState, this.context);
-    }
-
-    PlayerMove(direction){
-        this.myGameState.players[0].Move(direction, this.center);
     }
 
     PlayerDmg(player, dmg){
@@ -201,9 +227,8 @@ class Game{
         // const color = 'blue';
         // const speed = 1;
         // const name = "Player01";
-    
-        const newPlayer = new Player(size, pos, color, speed, name, health);
-        this.myGameState.AddPlayer(newPlayer);
+        let newPlayer = new Player(size, pos, color, speed, name, health);
+        this.myGameState.AddPlayer(idPlayer, newPlayer);
     }
     
     SpawnProjectile(size, pos, color, speed, posTarjet, owner){
@@ -340,16 +365,6 @@ module.exports = Game;
 //         }
 //     }
 // });
-
-
-// setInterval(() => {
-//     myGame.DespawnProjectile();
-//     myGame.ProjectileHitEnemy();
-// }, 100);
-
-// setInterval(() => {
-//     myGame.PlayerMove(dir);
-// }, 10);
 
 
 // Player can move on his field but never go throw
