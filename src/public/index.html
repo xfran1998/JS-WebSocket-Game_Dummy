@@ -11,8 +11,8 @@
     <title>Web Socket</title>
 </head>
 <body>
-    <h1>Web Socket funciona!!!!!</h1>
     <div class="container">
+        <h1>Web Socket funciona!!!!!</h1>
         <div class="btn-container">
             <div class="btn" onclick="join_server('Server1')">Server1</div>
             <div class="btn" onclick="join_server('Server2')">Server2</div>
@@ -22,6 +22,7 @@
             <div class="btn" onclick="move_server()">Move</div>
         </div>
     </div>
+    <canvas id="game" class="hidden"></canvas>
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/main.js"></script>
 </body>

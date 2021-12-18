@@ -24,8 +24,8 @@ const games = [];
 
 // 960, 468.5
 // 1920 937
-const TAM_GAME = {width: 1920, height: 937};
-const FPS = 60;
+const TAM_GAME = {width: 1920, height: 935};
+const FPS = 1;
 
 let myGame = new Game(TAM_GAME, FPS);
 
@@ -34,7 +34,7 @@ let myGame = new Game(TAM_GAME, FPS);
 app.use(express.static(path.join(__dirname, 'public')))
 
 let cont=0;
-
+console.log("Empezando!!");
 // Funcion que se ejecuta cuando un usuario se conecta al websocket
 io.on('connection', (socket) => {
     console.log("Nueva conexion!!");
@@ -88,20 +88,18 @@ io.on('connection', (socket) => {
     // });
 
     socket.on('client_join_room', (message) => {
-        if (users[socket.id]){ //if user exist on a room don't use it 
-            return;
-        }
+        // if (users[socket.id]){ //if user exist on a room don't use it 
+        //     return;
+        // }
 
         if (rooms[message] && rooms[message].length == 2){
             return;
         }
-
         
-        // Crea usuario
-        users[socket.id] = {x: randomInt(1000), y: randomInt(600), room: message};
-
+        // Create player
+        let coords = [randomInt(TAM_GAME),randomInt(TAM_GAME)];
         
-        myGame.SpawnPlayer(socket.id, 50, [TAM_GAME/2,TAM_GAME/2], 'blue', 10, `Player${cont}`, 200); cont++; // debug only
+        myGame.SpawnPlayer(socket.id, 50, coords, 'blue', 10, `Player${cont}`, 200); cont++; // debug only
         // myGame.SpawnPlayer(50, [innerWidth-80,innerHeight/2], 'red', 10, 'Player2', 200);
 
         // Crea sala
@@ -111,9 +109,9 @@ io.on('connection', (socket) => {
         //     rooms[message].push({user: socket.id, data: users[socket.id]});
         // }
         if (!rooms[message])
-            rooms[message] = [users[socket.id]];
+            rooms[message] = [socket.id];
         else{
-            rooms[message].push(users[socket.id]);
+            rooms[message].push(socket.id);
         }
 
         socket.join(message);
@@ -130,10 +128,15 @@ io.on('connection', (socket) => {
 
         if (rooms[message] && rooms[message].length == 2){
             const emit_server = (room) => {
-                // console.log(`emiting to: ${room}`);
-                io.to(room).emit('server_update_players', 'Testing');
+                console.log(`emiting to: ${room}`);
+                let info = {};
+                info['players'] = myGame.GetGameState().GetPlayers();
+                info['projectiles'] = myGame.GetGameState().GetProjectiles();
+                io.to(room).emit('server_update_players', info);
             };
-
+            
+            io.to(message).emit('server_start_game', TAM_GAME);
+            
             myGame.Run([message], emit_server);
             console.log('****  GAME START  ****')
             return;

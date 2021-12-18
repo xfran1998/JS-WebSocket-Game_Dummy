@@ -182,6 +182,14 @@ class GameState{
     GetProjectiles(){
         return this.projectiles;
     }
+
+    SetPlayers(players){
+        this.players = players;
+    }
+
+    SetProjectiles(projectiles){
+        this.projectiles = projectiles;
+    }  
 }
 
 // Client Side
@@ -357,12 +365,21 @@ class Game{
     */
     UpdatePlayerKeys(input){
         let players = this.myGameState.GetPlayers();
-        for (let id in players) {
-            if (input.type) 
-                players[id].KeyPressed(input.key); // if it's insert add the key
-            else 
-                players[id].KeyReleassed(input.key); // if it's delete the key
-        }
+        
+        if (input.type) 
+            players[input.idPlayer].KeyPressed(input.key); // if it's insert add the key
+        else 
+            players[input.idPlayer].KeyReleassed(input.key); // if it's delete the key
+    }
+
+//     D:\Web\JS-WebSocket-Game_Dummy\src\Game.js:364
+//             players[input.idPlayer].KeyReleassed(input.key); // if it's delete the key
+//                                     ^
+
+//     TypeError: Cannot read properties of undefined (reading 'KeyReleassed')
+
+    GetGameState(){
+        return this.myGameState;
     }
 
     // Debug funcs
