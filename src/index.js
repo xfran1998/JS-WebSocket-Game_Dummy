@@ -25,7 +25,7 @@ const games = [];
 // 960, 468.5
 // 1920 937
 const TAM_GAME = {width: 1920, height: 935};
-const FPS = 1;
+const FPS = 60;
 
 let myGame = new Game(TAM_GAME, FPS);
 
@@ -97,7 +97,7 @@ io.on('connection', (socket) => {
         }
         
         // Create player
-        let coords = [randomInt(TAM_GAME),randomInt(TAM_GAME)];
+        let coords = [randomInt(TAM_GAME.width),randomInt(TAM_GAME.height)];
         
         myGame.SpawnPlayer(socket.id, 50, coords, 'blue', 10, `Player${cont}`, 200); cont++; // debug only
         // myGame.SpawnPlayer(50, [innerWidth-80,innerHeight/2], 'red', 10, 'Player2', 200);
@@ -136,6 +136,9 @@ io.on('connection', (socket) => {
             };
             
             io.to(message).emit('server_start_game', TAM_GAME);
+            
+            console.log(message);
+            io.to(message).emit('test', 'testing');
             
             myGame.Run([message], emit_server);
             console.log('****  GAME START  ****')
