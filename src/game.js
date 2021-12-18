@@ -86,6 +86,7 @@ class Player extends Pawn{
         super(size, pos, color, speed);
         this.name = name;
         this.health = health;
+        this.keysPress = [];
         this.direction = {x: 0, y: 0};
     }
 
@@ -102,7 +103,32 @@ class Player extends Pawn{
     }
 
     UpdateDir(direction){
+        this.keysPress.forEach( (key) =>{
+            if (key == 'a' && this.direction.x == 0) this.direction.x = 1;
+            else if (key == 'a' && this.direction.x == 0) this.direction.x = -1;
+
+            if (key == 'w' && this.direction.y == 0) this.direction.y = 1;
+            else if (key == 's' && this.direction.y == 0) this.direction.y = -1;
+        });
         this.direction = direction;
+    }
+
+    KeyPressed(key){
+        if (this.keysPress.indexOf(key) == -1)
+            this.keysPress.push(key);
+    }
+
+    KeyReleassed(key){
+        let ind = this.keysPress.indexOf(key);
+        this.keysPress.splice(ind,1);
+    }
+
+    GetKeyPressed(){
+        return this.keysPress;
+    }
+
+    GetName(){
+        return this.name;
     }
 }
 
@@ -110,23 +136,23 @@ class GameState{
     constructor(){
         this.players = {};
         this.projectiles = new Array();
-        this.spawnProjectiles = false;
+        this.spawnProjectiles = false; // For later
     }
 
     AddPlayer(idPlayer, newPlayer){
-        this.players['idPlayer'] = newPlayer;
+        this.players[idPlayer] = newPlayer;
     }
 
     AddProjectiles(proj){
         this.projectiles.push(proj);
     }
 
-    GetPlayer(){
+    GetPlayers(){
         return this.players;
     }
 
     GetProjectiles(){
-        return this.players;
+        return this.projectiles;
     }
 }
 
@@ -189,20 +215,27 @@ class Game{
         // const GAME_CHECK_INTERV = 100;
     }
 
-    Run(){
+    Run(...runtimeFuncs){
         // Display.Draw(this.myGameState, this.context);
         setInterval(() => {
             this.PlayerMove(); // Move the player (key pressed)
             this.ProjectilesMove(); // Move projectiles
             this.ProjectileHitEnemy(); // check if hit projectile
             this.DespawnProjectile(); // check if can despawn proj
+
+            // If we want to debug something
+            runtimeFuncs.forEach( func => {
+                func();
+            });
+
         }, this.gameFrec); // Maybe split and change to GAME_CHECK_INTERV if overloaded server
     }
 
     PlayerMove(){
-        // for more than 2 player user forEach loop
-        this.myGameState.players[0].Move(this.center);
-        this.myGameState.players[1].Move(this.center);
+        let players = this.myGameState.GetPlayers();
+        for (let id in players) {
+            players[id].Move(this.center);
+        }
     }
 
     ProjectilesMove(){
@@ -219,7 +252,7 @@ class Game{
         }
     }
 
-    SpawnPlayer(size, pos, color, speed, name, health){
+    SpawnPlayer(idPlayer, size, pos, color, speed, name, health){
         // const x = innerWidth / 2;
         // const y = innerHeight / 2;
         // const size = 50;
@@ -227,6 +260,7 @@ class Game{
         // const color = 'blue';
         // const speed = 1;
         // const name = "Player01";
+
         let newPlayer = new Player(size, pos, color, speed, name, health);
         this.myGameState.AddPlayer(idPlayer, newPlayer);
     }
@@ -284,6 +318,32 @@ class Game{
                 console.log("Hit!!");
             }
         }
+    }
+
+    /*
+    *   input.idPlayer  :   Id of the socket the player is connected
+    *   input.type      :   true = pressed , false = releassed     
+    *   input.key       :   Key the player has been pressed
+    */
+    UpdatePlayerKeys(input){
+        let players = this.myGameState.GetPlayers();
+        for (let id in players) {
+            if (input.type) 
+                players[id].KeyPressed(input.key); // if it's insert add the key
+            else 
+                players[id].KeyReleassed(input.key); // if it's delete the key
+        }
+    }
+
+    // Debug funcs
+    GetPlayersKeys(){
+        let keysPress = {};
+        let players = this.myGameState.GetPlayers();
+        for (let id in players) {
+            keysPress[players[id].GetName()] = players[id].GetKeyPressed();
+        }
+
+        return keysPress;
     }
 }
 
@@ -368,3 +428,21 @@ module.exports = Game;
 
 
 // Player can move on his field but never go throw
+
+// function test(args, ...funcs){
+//     let i=0;
+//     funcs.forEach( fnc => {
+//         fnc(args[i]);
+//         i++;
+//     });
+// }
+
+// hello = (msg) => {
+//     console.log('Hello ',msg);
+// };
+
+// world = (msg1, msg2) => {
+//     console.log(`World ${msg1} - ${msg2}`);
+// };
+
+// test(['1',['2','3']],hello, world);

@@ -25,13 +25,16 @@ var games = [];
 // 960, 468.5
 // 1920 937
 const TAM_GAME = {width: 1920, height: 937};
+const FPS = 60;
 
-let myGame = new Game(TAM_GAME);
+let myGame = new Game(TAM_GAME, FPS);
 myGame.Run();
 
 // Seteando carpeta estatica, carpeta donde contiene todos los datos que requiere el usuario cuando hace la peticion
 // a la web buscando recursos.
 app.use(express.static(path.join(__dirname, 'public')))
+
+var cont=0;
 
 // Funcion que se ejecuta cuando un usuario se conecta al websocket
 io.on('connection', (socket) => {
@@ -66,24 +69,24 @@ io.on('connection', (socket) => {
     });   
     
     // Envia mensaje cuando cliente se desconecta
-    // socket.on('disconnect', () => {
-        //     console.log("Disconect");
-        //     // io.emit('server', 'Alguien se ha desconectado!!!');
-        // });
-        
-        // socket.on('client_key', (message) => {
-            //     socket.broadcast.emit('server', message);
-            // });
-            
-        socket.on('client_move', (move) =>{
-        users[socket.id].x += move.x;
-        users[socket.id].y += move.y;
-        
-        console.log("**** MOVING ****");
-        console.log(users);
-        console.log(rooms);
-        console.log("**********************");
+    socket.on('disconnect', () => {
+        console.log("Disconect");
+        // io.emit('server', 'Alguien se ha desconectado!!!');
     });
+        
+    // socket.on('client_key', (message) => {
+    //     socket.broadcast.emit('server', message);
+    // });
+            
+    // socket.on('client_move', (move) =>{
+    // users[socket.id].x += move.x;
+    // users[socket.id].y += move.y;
+    
+    // console.log("**** MOVING ****");
+    // console.log(users);
+    // console.log(rooms);
+    // console.log("**********************");
+    // });
 
     socket.on('client_join_room', (message) => {
         if (users[socket.id]){ //if user exist on a room don't use it 
@@ -97,7 +100,8 @@ io.on('connection', (socket) => {
         
         // Crea usuario
         users[socket.id] = {x: randomInt(1000), y: randomInt(600), room: message};
-        // myGame.SpawnPlayer(50, [innerWidth/2,innerHeight/2], 'blue', 10, 'Player1', 200);
+
+        myGame.SpawnPlayer(socket.id, 50, [TAM_GAME/2,TAM_GAME/2], 'blue', 10, `Player${cont}`, 200); cont++; // debug only
         // myGame.SpawnPlayer(50, [innerWidth-80,innerHeight/2], 'red', 10, 'Player2', 200);
 
         // Crea sala
@@ -124,6 +128,14 @@ io.on('connection', (socket) => {
         let return_msg = {status: 'ok', response: {users: users, rooms: rooms}};
         socket.broadcast.emit('server_new_room', return_msg);
     });
+
+    socket.on('client_update_key', (input) => {
+        input.idPlayer = socket.id;
+        myGame.UpdatePlayerKeys(input);
+        console.log("**** MOVING ****");
+        console.log(myGame.GetPlayersKeys());
+        console.log("**********************");
+    })
 })
 
 

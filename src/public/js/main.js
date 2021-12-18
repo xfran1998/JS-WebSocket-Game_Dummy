@@ -1,6 +1,11 @@
 const socket = io();
 const container = document.querySelector('.container');
 
+var input = {
+    type: false,
+    key: 'z'
+}
+
 socket.on('server', (message) => {
     let el = document.createElement('div');
     el.classList = "key-container";
@@ -10,17 +15,30 @@ socket.on('server', (message) => {
     console.log('Hijo añadido: ', message);
 })
 
-document.addEventListener('keyup', (e) => {
-    socket.emit('client_key', e.key);
-    console.log(e);
+document.addEventListener('keydown', (e) => {
+    UpdateKey(true, e.key);
 });
+
+document.addEventListener('keyup', (e) => {
+    UpdateKey(false, e.key);
+});
+
+
+function UpdateKey(type, key){
+    if (input.type == type && input.key == key) // if haven't changed
+        return;
+
+    input.type = type;
+    input.key = key;
+
+    // if (input.type != type) console.log(`type: ${input.type} - ${type}`);
+    // if (input.key != type) console.log(`key: ${input.key} - ${key}`);
+
+    socket.emit('client_update_key', input);   
+}
 
 function join_server(server){
     socket.emit('client_join_room', server);
-}
-
-function move_server(){
-    socket.emit('client_move', {x:1, y:-1});
 }
 
 class Display{
