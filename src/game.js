@@ -102,29 +102,57 @@ class Player extends Pawn{
         return this.pos;
     }
 
-    UpdateDir(direction){
-        this.keysPress.forEach( (key) =>{
-            if (key == 'a' && this.direction.x == 0) this.direction.x = 1;
-            else if (key == 'a' && this.direction.x == 0) this.direction.x = -1;
-
-            if (key == 'w' && this.direction.y == 0) this.direction.y = 1;
-            else if (key == 's' && this.direction.y == 0) this.direction.y = -1;
+    UpdateDir(){
+        let dirPressed = {x: false, y: false}; // x direccion not pressed and y the same
+        console.log(this.keysPress);
+        this.keysPress.forEach( (key) => {
+            // console.log(`key: ${key}`);
+            if ((key == 'a' || key == 'A')){
+                this.direction.x = -1;
+                dirPressed.x = true;
+            } 
+            else if ((key == 'd' || key == 'D')){
+                this.direction.x = 1;
+                dirPressed.x = true;
+            } 
+            
+            if ((key == 'w' || key == 'W')) {
+                this.direction.y = -1;
+                dirPressed.y = true;
+                
+            }
+            else if ((key == 's' || key == 'S')) {
+                this.direction.y = 1;
+                dirPressed.y = true;
+            }
         });
-        this.direction = direction;
+
+        // Check if direction not pressed and set direction to 0
+        if (!dirPressed.x) this.direction.x = 0;
+        if (!dirPressed.y) this.direction.y = 0;
     }
 
     KeyPressed(key){
         if (this.keysPress.indexOf(key) == -1)
             this.keysPress.push(key);
-    }
 
+        this.UpdateDir();
+    }
+    
     KeyReleassed(key){
         let ind = this.keysPress.indexOf(key);
         this.keysPress.splice(ind,1);
+
+        console.log(`Released: ${key}`);
+        this.UpdateDir();
     }
 
     GetKeyPressed(){
         return this.keysPress;
+    }
+
+    GetDirection(){
+        return this.direction;
     }
 
     GetName(){
@@ -215,7 +243,7 @@ class Game{
         // const GAME_CHECK_INTERV = 100;
     }
 
-    Run(...runtimeFuncs){
+    Run(args, ...runtimeFuncs){
         // Display.Draw(this.myGameState, this.context);
         setInterval(() => {
             this.PlayerMove(); // Move the player (key pressed)
@@ -223,9 +251,11 @@ class Game{
             this.ProjectileHitEnemy(); // check if hit projectile
             this.DespawnProjectile(); // check if can despawn proj
 
+            let i=0;
             // If we want to debug something
             runtimeFuncs.forEach( func => {
-                func();
+                func(args[i]);
+                i++;
             });
 
         }, this.gameFrec); // Maybe split and change to GAME_CHECK_INTERV if overloaded server
@@ -261,7 +291,7 @@ class Game{
         // const speed = 1;
         // const name = "Player01";
 
-        let newPlayer = new Player(size, pos, color, speed, name, health);
+        const newPlayer = new Player(size, pos, color, speed, name, health);
         this.myGameState.AddPlayer(idPlayer, newPlayer);
     }
     
@@ -344,6 +374,16 @@ class Game{
         }
 
         return keysPress;
+    }
+
+    GetPlayersDir(){
+        let dirPlayers = {};
+        let players = this.myGameState.GetPlayers();
+        for (let id in players) {
+            dirPlayers[players[id].GetName()] = players[id].GetDirection();
+        }
+
+        return dirPlayers;
     }
 }
 
@@ -441,7 +481,7 @@ module.exports = Game;
 //     console.log('Hello ',msg);
 // };
 
-// world = (msg1, msg2) => {
+// world = ([msg1,msg2]) => {
 //     console.log(`World ${msg1} - ${msg2}`);
 // };
 

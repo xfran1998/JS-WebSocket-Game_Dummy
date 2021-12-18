@@ -15,6 +15,10 @@ socket.on('server', (message) => {
     console.log('Hijo añadido: ', message);
 })
 
+socket.on('server_update_players', (info) => {
+    console.log(info);
+});
+
 document.addEventListener('keydown', (e) => {
     UpdateKey(true, e.key);
 });
@@ -36,6 +40,8 @@ function UpdateKey(type, key){
 
     socket.emit('client_update_key', input);   
 }
+
+
 
 function join_server(server){
     socket.emit('client_join_room', server);
