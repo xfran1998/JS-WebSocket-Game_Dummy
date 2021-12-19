@@ -5,7 +5,6 @@ const container = document.querySelector('.container');
 const btn = document.querySelectorAll('.btn');
 const canvas = document.querySelector('#game');
 const context = canvas.getContext('2d');
-const myGameState = new GameState();
 
 var input = {
     type: false,
@@ -26,22 +25,18 @@ socket.on('server_start_game', (TAM_GAME) => {
 
     canvas.width = TAM_GAME.width;
     canvas.height = TAM_GAME.height;
+
+    Display.context = context;
+    Display.myGameState = new GameState();;
+    Display.Draw();
     
     canvas.classList.remove('hidden');
     container.classList.add('hidden');
 });
 
-socket.on('test', (msg) => {
-    console.log(msg);
-});
-
 socket.on('server_update_players', (info) => {
-    myGameState.SetPlayers(info.players);
-    myGameState.SetProjectiles(info.projectiles);
-
-    if (!context) console.log("context undefined2");
-
-    Display.Draw(myGameState, context);
+    Display.myGameState.SetPlayers(info.players);
+    Display.myGameState.SetProjectiles(info.projectiles);
 });
 
 

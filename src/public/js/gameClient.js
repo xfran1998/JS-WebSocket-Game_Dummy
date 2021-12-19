@@ -1,36 +1,40 @@
 class Display{
-    static Draw(myGameState, ctx){
-        if (!ctx) console.log('ctx undefined1')
-        Display.ClearScreen(ctx);
+    static context = null;
+    static myGameState = null;
 
-        myGameState.projectiles.forEach(proj => {
-            Display.DrawPawn(proj, ctx);
+    static Draw(){
+        if (!this.context || !this.myGameState) return // Prevents fail
+
+        Display.ClearScreen(this.context);
+        
+        this.myGameState.projectiles.forEach(proj => {
+            Display.DrawPawn(proj, this.context);
         });
-
-        let players = myGameState.GetPlayers();
+        
+        let players = this.myGameState.GetPlayers();
         for (let id in players) {
-            Display.DrawPawn(players[id], ctx);
+            Display.DrawPawn(players[id], this.context);
         }
 
         // let player = myGame.myGameState.players[0];
-        // Display.DrawHealthBar(player, ctx);
+        // Display.DrawHealthBar(player, this.context);
 
         requestAnimationFrame(() => Display.Draw());
     }
 
-    static DrawPawn(pawn, ctx){
-        ctx.beginPath();
-        ctx.arc(pawn.pos[0], pawn.pos[1], pawn.size, 0, Math.PI*2, false);  
-        ctx.fillStyle = pawn.color;           
-        ctx.fill(); 
+    static DrawPawn(pawn){
+        this.context.beginPath();
+        this.context.arc(pawn.pos[0], pawn.pos[1], pawn.size, 0, Math.PI*2, false);  
+        this.context.fillStyle = pawn.color;           
+        this.context.fill(); 
     }
 
-    static ClearScreen(ctx){
-        const tam = ctx.canvas.getBoundingClientRect();
-        ctx.clearRect(0, 0, tam.width, tam.height);
+    static ClearScreen(){
+        const tam = this.context.canvas.getBoundingClientRect();
+        this.context.clearRect(0, 0, tam.width, tam.height);
     }
 
-    static DrawHealthBar(player, ctx){
+    static DrawHealthBar(player){
         // Border
         let pos = [20,20];
         let tamBorder = [200, 30];
@@ -38,17 +42,17 @@ class Display{
         let stroke = 3;
 
         // Player green health
-        ctx.beginPath();
-        ctx.rect(pos[0], pos[1], tamHealth[0], tamHealth[1]);
-        ctx.fillStyle = "green";           
-        ctx.fill(); 
+        this.context.beginPath();
+        this.context.rect(pos[0], pos[1], tamHealth[0], tamHealth[1]);
+        this.context.fillStyle = "green";           
+        this.context.fill(); 
         
         // Border of the player health
-        ctx.beginPath();
-        ctx.rect(pos[0], pos[1], tamBorder[0], tamBorder[1]);
-        ctx.lineWidth = stroke;
-        ctx.strokeStyle = 'black';
-        ctx.stroke();        
+        this.context.beginPath();
+        this.context.rect(pos[0], pos[1], tamBorder[0], tamBorder[1]);
+        this.context.lineWidth = stroke;
+        this.context.strokeStyle = 'black';
+        this.context.stroke();        
     }
 }
 

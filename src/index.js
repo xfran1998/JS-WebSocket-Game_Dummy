@@ -128,7 +128,7 @@ io.on('connection', (socket) => {
 
         if (rooms[message] && rooms[message].length == 2){
             const emit_server = (room) => {
-                console.log(`emiting to: ${room}`);
+                // console.log(`emiting to: ${room}`);
                 let info = {};
                 info['players'] = myGame.GetGameState().GetPlayers();
                 info['projectiles'] = myGame.GetGameState().GetProjectiles();
