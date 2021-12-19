@@ -39,8 +39,6 @@ socket.on('server_update_players', (info) => {
     Display.myGameState.SetProjectiles(info.projectiles);
 });
 
-
-
 function UpdateKey(type, key){
     if (input.type == type && input.key == key) // if haven't changed
     return;
@@ -59,11 +57,20 @@ function join_server(server){
 }
 
 document.addEventListener('keydown', (e) => {
-    UpdateKey(true, e.key);
+    let key = e.key.toLowerCase()
+    if (key == 'a' || key == 'w' || key =='s' || key =='d')
+        UpdateKey(true, key);
+    else if(e.key == 'q' || e.key == 'Q')
+        socket.emit('client_use_hability', 'q');
 });
 
 document.addEventListener('keyup', (e) => {
     UpdateKey(false, e.key);
+});
+
+// Click - Spawn projectile to mouse pos
+addEventListener('click', (e) => {
+    socket.emit('client_use_hability', 'attack');
 });
 
 btn.forEach( (el) => {
