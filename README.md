@@ -1,5 +1,5 @@
 # JS-WebSocket-Game_Dummy
-First multiplayer game using just Node.js (Express, websockets) and pure JS 
+First multiplayer game using just Node.js (Express and Socket.io)
 
 ## ALREADY MADE: 
 * WebServer / WebSocket setup
