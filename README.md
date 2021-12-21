@@ -19,14 +19,14 @@ First multiplayer game using just Node.js (Express, websockets) and pure JS
 * More habilities (Space: Dash, E: Tarjet projectile, ...)
 
 ```Advance```
-* Server prediction
-** Client runs his own game (60FPS)
-** Data will be send Cliento-to-Server:
-*** Movement (keys, like we did)
-*** Player and enemy projectiles positions(10FPS or a bit higher to not saturate bandwith)
-** Data will be send Server-to-Client:
-*** Projectile hits player
-*** Player is moving wrong (prediction will know if player is trying to cheat moving faster than he should)
-* Server class (handle all events of the GameEngine)
-* ( Posible handing sync error ) Server will update player position if error between server and client is inside prediction margin error, if not server will send new location of the player to update it
-* Make Engine and Server class customicable, for posible future projects.
+- Server prediction
+  - Client runs his own game (60FPS)
+  - Data will be send Cliento-to-Server:
+    - Movement (keys, like we did)
+    - Player and enemy projectiles positions(10FPS or a bit higher to not saturate bandwith)
+  - Data will be send Server-to-Client:
+    - Projectile hits player
+    - Player is moving wrong (prediction will know if player is trying to cheat moving faster than he should)
+- Server class (handle all events of the GameEngine)
+- ( Posible handing sync error ) Server will update player position if error between server and client is inside prediction margin error, if not server will send new location of the player to update it
+- Make Engine and Server class customicable, for posible future projects.
